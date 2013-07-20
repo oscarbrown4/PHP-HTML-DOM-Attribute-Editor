@@ -7,7 +7,7 @@
 
 function processHTML($html, $attributes, $value=false) {
 
-  // check if $attributes is an array.  If not, get $value and put into array
+	// check if $attributes is an array.  If not, get $value and put into array
 	if (!is_array($attributes)) $attributes=array($attributes=>$value);
 
 	// run the function on each attribute in the array
@@ -28,13 +28,20 @@ function processHTML($html, $attributes, $value=false) {
 		
 			// run for each attribute 
 			foreach ($attrs as $attr => $vals) {
-		
+				
+				//set $hasAttr = false by default
+				
+				
+				//checks for the types of quotes used as well as if it has the attribute
+				if (strpos($tag, $attr.'="')) { $q = '"'; $hasAttr = TRUE; }
+				elseif (strpos($tag, $attr."='")) { $q = "'"; $hasAttr = TRUE; }
+				
 				// if the element already has the attribute
-				if (strpos($tag, $attr.'="')) {
+				if ($hasAttr) {
 					
 					//find start & end of attribute value, then get the attribute value
-					$start=strpos($tag, $attr.'="')+strlen($attr.'="');
-					$end=strpos($tag, '"',$start)-$start;
+					$start=strpos($tag, $attr.'='.$q)+strlen($attr.'='.$q);
+					$end=strpos($tag, $q,$start)-$start;
 					$origValsString=substr($tag, $start, $end);
 					
 					// convert the values to an array
@@ -74,10 +81,10 @@ function processHTML($html, $attributes, $value=false) {
 					}
 					
 					// replace the old values with the new values
-					$newTag=str_replace($attr.'="'.$origValsString.'"', $attr.'="'.$valsString.'" ', $tag);
+					$newTag=str_replace($attr.'='.$q.$origValsString.$q, $attr.'='.$q.$valsString.$q, $tag);
     			}
     			
-    			//otherwise add the values to the element
+    			//otherwise just add the values to the element
 				else {
 				
 					// if $vals is an array, turn it into a string
@@ -108,3 +115,4 @@ function processHTML($html, $attributes, $value=false) {
 	// return the filtered html
 	return $html;
 }
+
